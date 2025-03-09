@@ -24,6 +24,7 @@ import tiktoken  # to count the tokens
 #load_dotenv()
 
 # Fetch API key from environment variable
+#GOOGLE_API_KEY
 api_key = os.getenv("{{secrets.API}}")
 if not api_key:
     st.error("GOOGLE_API_KEY is not set. Please set it in your environment variables.")  # Display error message if API key is not found
