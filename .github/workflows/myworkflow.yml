@@ -9,4 +9,4 @@ jobs:
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
-          python your_script.py
+          python FT251006_Assignment2.py
