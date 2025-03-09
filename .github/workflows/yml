@@ -15,6 +15,6 @@ jobs:
 
       - name: Run Python script
         env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GOOGLE_API_KEY: ${{secrets.GOOGLE_API_KEY}}
         run: |
           python FT251006_Assignment2.py
