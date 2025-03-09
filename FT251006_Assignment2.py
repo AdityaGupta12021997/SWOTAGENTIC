@@ -19,6 +19,9 @@ from langchain_google_genai import ChatGoogleGenerativeAI #import gemini library
 from langchain.prompts import PromptTemplate #import langchain
 from langchain.chains import LLMChain #import langchain
 import tiktoken  # to count the tokens
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Fetch API key from environment variable
 api_key = os.getenv("GOOGLE_API_KEY")
