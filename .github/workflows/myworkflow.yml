@@ -22,9 +22,9 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: '3.x'  # Specify the Python version
+          python-version: '3.9'  # Specify the Python version
 
-      # Step 3: Install dependencies
+      # Step 3: Install dependencies from requirements.txt
       - name: Install Dependencies
         run: pip install -r requirements.txt
 
