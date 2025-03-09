@@ -1,16 +1,35 @@
+name: My Workflow
+
+on:
+  push:
+    branches:
+      - main  # Trigger workflow on push to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger workflow on pull request to the main branch
+  workflow_dispatch:  # Allows manual triggering from the GitHub Actions UI
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
 
+    steps:
+      # Step 1: Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'  # Specify the Python version
+
+      # Step 3: Install dependencies
       - name: Install Dependencies
         run: pip install -r requirements.txt
 
+      # Step 4: Run the Python script
       - name: Run Python script
         env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        run: |
-          python FT251006_Assignment2.py
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}  # Access the secret key from GitHub Secrets
+        run: python FT251006_Assignment2.py
