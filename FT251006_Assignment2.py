@@ -25,7 +25,7 @@ if 'response_tokens' not in st.session_state:
     st.session_state.response_tokens = 0  # Initialize response tokens
 
 # Initialize LangChain with Gemini
-llm = ChatGoogleGenerativeAI(model="gemini-3-pro-preview", google_api_key=api_key, temperature=0.7)  # Initialize the language model
+llm = ChatGoogleGenerativeAI(model="gemini-3-flash", google_api_key=api_key, temperature=0.7)  # Initialize the language model
 
 # Define the prompt template for SWOT analysis
 prompt_template_swot = """
