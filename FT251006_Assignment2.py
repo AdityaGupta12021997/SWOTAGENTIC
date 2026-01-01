@@ -11,7 +11,8 @@ load_dotenv()
 
 # Fetch API key from environment variable
 #GOOGLE_API_KEY
-api_key = os.getenv("GOOGLE_API_KEY")
+# api_key = os.getenv("GOOGLE_API_KEY")
+api_key=st.secrets["GOOGLE_API_KEY"]
 if not api_key:
     st.error("GOOGLE_API_KEY is not set. Please set it in your environment variables.")  # Display error message if API key is not found
     st.stop()  # Stop execution if API key is not found
@@ -25,7 +26,7 @@ if 'response_tokens' not in st.session_state:
     st.session_state.response_tokens = 0  # Initialize response tokens
 
 # Initialize LangChain with Gemini
-llm = ChatGoogleGenerativeAI(model="models/gemini-1.5-pro", google_api_key=api_key, temperature=0.7)  # Initialize the language model
+llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key=api_key, temperature=0.7)  # Initialize the language model
 
 # Define the prompt template for SWOT analysis
 prompt_template_swot = """
