@@ -1,17 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[45]:
-
-
-# Aditya Gupta, FT251006, Section-1
-
-#Objective: Using Streamlit and LangChain design an AI Agent that takes as input information about an 
-
-# organization such as NovaEdge (below) and emits a detailed SWOT analysis. The Analysis should 
-
-# include a visual representation of the key points of the SWOT analysis. 
-
 # Import necessary libraries
 import os
 import streamlit as st #import streamlit
@@ -74,15 +60,21 @@ Format the response EXACTLY as follows, using clear headings and bullet points:
 """
 
 prompt_swot = PromptTemplate(input_variables=["context"], template=prompt_template_swot)  # Create a prompt template
-llm_chain_swot = LLMChain(prompt=prompt_swot, llm=llm)  # Create an LLM chain for SWOT analysis
+# llm_chain_swot = LLMChain(prompt=prompt_swot, llm=llm)  # Create an LLM chain for SWOT analysis
 
 # Token encoder
 encoder = tiktoken.get_encoding("cl100k_base")  # Get the token encoder
 
 # Function to generate SWOT analysis
+# def generate_swot(txt):
+#     response = llm_chain_swot.run(txt)  # Run the LLM chain to generate SWOT analysis
+#     return response  # Return the SWOT analysis
+
+chain = prompt_swot | llm
+
 def generate_swot(txt):
-    response = llm_chain_swot.run(txt)  # Run the LLM chain to generate SWOT analysis
-    return response  # Return the SWOT analysis
+    response = chain.invoke({"context": txt})
+    return response.content
 
 # Streamlit UI Setup
 st.set_page_config(page_title="SWOT Analysis Agent (LangChain + Gemini)")  # Set the page title
@@ -116,10 +108,3 @@ if st.button("Generate SWOT Analysis"):  # Create a button to trigger SWOT analy
         st.session_state.tokens_consumed = 0  # Reset total tokens consumed
         st.session_state.query_tokens = 0  # Reset query tokens
         st.session_state.response_tokens = 0  # Reset response tokens
-
-
-# In[ ]:
-
-
-
-
