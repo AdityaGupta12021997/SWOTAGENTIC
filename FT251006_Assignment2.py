@@ -60,21 +60,15 @@ Format the response EXACTLY as follows, using clear headings and bullet points:
 """
 
 prompt_swot = PromptTemplate(input_variables=["context"], template=prompt_template_swot)  # Create a prompt template
-# llm_chain_swot = LLMChain(prompt=prompt_swot, llm=llm)  # Create an LLM chain for SWOT analysis
+llm_chain_swot = LLMChain(prompt=prompt_swot, llm=llm)  # Create an LLM chain for SWOT analysis
 
 # Token encoder
 encoder = tiktoken.get_encoding("cl100k_base")  # Get the token encoder
 
-# Function to generate SWOT analysis
-# def generate_swot(txt):
-#     response = llm_chain_swot.run(txt)  # Run the LLM chain to generate SWOT analysis
-#     return response  # Return the SWOT analysis
-
-chain = prompt_swot | llm
-
+Function to generate SWOT analysis
 def generate_swot(txt):
-    response = chain.invoke({"context": txt})
-    return response.content
+    response = llm_chain_swot.run(txt)  # Run the LLM chain to generate SWOT analysis
+    return response  # Return the SWOT analysis
 
 # Streamlit UI Setup
 st.set_page_config(page_title="SWOT Analysis Agent (LangChain + Gemini)")  # Set the page title
