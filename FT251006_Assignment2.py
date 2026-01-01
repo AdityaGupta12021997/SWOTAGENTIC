@@ -65,7 +65,7 @@ llm_chain_swot = LLMChain(prompt=prompt_swot, llm=llm)  # Create an LLM chain fo
 # Token encoder
 encoder = tiktoken.get_encoding("cl100k_base")  # Get the token encoder
 
-Function to generate SWOT analysis
+#Function to generate SWOT analysis
 def generate_swot(txt):
     response = llm_chain_swot.run(txt)  # Run the LLM chain to generate SWOT analysis
     return response  # Return the SWOT analysis
