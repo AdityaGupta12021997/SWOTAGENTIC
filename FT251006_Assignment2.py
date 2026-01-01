@@ -15,7 +15,7 @@ else:
 
 # --- Initialize Model & Chain ---
 # Note: "models/" prefix removed for better compatibility
-llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key=api_key, temperature=0.7)
+llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=api_key, temperature=0.7)
 
 prompt_template_swot = """
 You are a management consultant. Analyze the following information and provide a detailed SWOT analysis.
