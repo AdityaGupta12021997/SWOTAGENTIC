@@ -1,96 +1,80 @@
 import os
-import time
 import streamlit as st
 import tiktoken
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
-from google.api_core import exceptions
 
 # --- API Configuration ---
+# Uses Streamlit Secrets (mandatory for Streamlit Cloud in 2026)
 if "GOOGLE_API_KEY" in st.secrets:
     api_key = st.secrets["GOOGLE_API_KEY"]
 else:
-    st.error("Please set GOOGLE_API_KEY in Streamlit Secrets.")
+    st.error("Please add GOOGLE_API_KEY to your Streamlit Secrets.")
     st.stop()
 
 # --- Initialize Model ---
-# Using 1.5-flash as it has the highest RPD (Requests Per Day) for the Free Tier
+# 'gemini-3-flash-preview' is the highest-quota model for Free Tier in Jan 2026.
+# If you still get a 404, fallback to 'gemini-2.5-flash'.
 llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash", 
+    model="gemini-3-flash-preview", 
     google_api_key=api_key, 
     temperature=0.7
 )
 
-# --- SWOT Template ---
+# --- Define the prompt template ---
 prompt_template_swot = """
-You are a management consultant. Analyze the following information and provide a detailed SWOT analysis.
-Identify Strengths, Weaknesses, Opportunities, and Threats.
+You are a management consultant. Analyze the provided context and deliver a professional SWOT analysis.
 
 {context}
 
-Format the response EXACTLY as follows:
-
+Format the response with these exact headers:
 **Strengths:**
-- [Point]
-...
 **Weaknesses:**
-- [Point]
-...
 **Opportunities:**
-- [Point]
-...
 **Threats:**
-- [Point]
-...
 
-Finally, provide a Markdown Table summarizing the SWOT.
+Also, include a | SWOT Matrix | as a Markdown table at the end.
 """
 
 prompt_swot = PromptTemplate(input_variables=["context"], template=prompt_template_swot)
-chain = prompt_swot | llm
+
+# Modern LCEL Chain
+swot_chain = prompt_swot | llm
 
 # --- UI Setup ---
-st.set_page_config(page_title="SWOT Agent (Quota Optimized)", layout="wide")
-st.title("🚀 SWOT Analysis Agent")
-st.info("Note: Using Gemini 1.5 Flash to minimize 'Quota Exceeded' errors.")
+st.set_page_config(page_title="SWOT Analysis AI", layout="wide")
+st.title("💼 SWOT Analysis Agent (Gemini 3)")
 
-# Token encoder
-encoder = tiktoken.get_encoding("cl100k_base")
+# Initialize session state for tracking
+if 'total_tokens' not in st.session_state:
+    st.session_state.total_tokens = 0
 
-text_input = st.text_area("Enter organization information:", height=250)
+text_input = st.text_area("Enter organization info to analyze:", height=200)
 
-if st.button("Generate SWOT Analysis"):
-    if not text_input:
-        st.warning("Please enter some text first.")
+if st.button("Generate SWOT"):
+    if text_input:
+        with st.spinner("Analyzing with Gemini 3 Flash..."):
+            try:
+                # Execution
+                response = swot_chain.invoke({"context": text_input})
+                result = response.content
+                
+                # UI Output
+                st.subheader("Analysis Results")
+                st.markdown(result)
+                
+                # Token Tracking
+                encoder = tiktoken.get_encoding("cl100k_base")
+                tokens = len(encoder.encode(text_input)) + len(encoder.encode(result))
+                st.session_state.total_tokens += tokens
+                st.sidebar.metric("Tokens Consumed", st.session_state.total_tokens)
+                
+            except Exception as e:
+                if "429" in str(e):
+                    st.error("Free Tier Quota Exceeded. Please wait 60 seconds or switch to a Paid Tier key.")
+                elif "404" in str(e):
+                    st.error("Model not found. Try updating the model name to 'gemini-2.5-flash'.")
+                else:
+                    st.error(f"Error: {e}")
     else:
-        with st.spinner('Consulting Gemini (with retry logic)...'):
-            # --- Robust Execution with Retries ---
-            max_retries = 3
-            retry_delay = 10 # Seconds to wait on 429 error
-            
-            for attempt in range(max_retries):
-                try:
-                    response = chain.invoke({"context": text_input})
-                    swot_result = response.content
-                    
-                    # Display Results
-                    st.success("Analysis Complete!")
-                    st.markdown(swot_result)
-                    
-                    # Log tokens
-                    q_tokens = len(encoder.encode(text_input))
-                    r_tokens = len(encoder.encode(swot_result))
-                    st.sidebar.metric("Tokens Used", q_tokens + r_tokens)
-                    break # Success! Exit the retry loop
-                
-                except exceptions.ResourceExhausted:
-                    if attempt < max_retries - 1:
-                        st.warning(f"Quota hit. Retrying in {retry_delay} seconds... (Attempt {attempt+1}/{max_retries})")
-                        time.sleep(retry_delay)
-                        retry_delay *= 2 # Exponential backoff
-                    else:
-                        st.error("Maximum retries reached. The Google Free Tier limit is strictly enforced right now. Please wait 1-2 minutes before trying again.")
-                
-                except Exception as e:
-                    st.error(f"An unexpected error occurred: {e}")
-                    break
+        st.warning("Please provide input text.")
